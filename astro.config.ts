@@ -1,7 +1,7 @@
 import { defineConfig } from "astro/config";
 
 export default defineConfig({
-  site: "https://your-username.github.io",
+  site: "https://deng2010.github.io",
   base: "/untitled-space",
   trailingSlash: "always",
   build: {

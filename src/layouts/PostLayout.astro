@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
+import { render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
 export interface Props {
@@ -7,7 +8,7 @@ export interface Props {
 }
 
 const { post } = Astro.props;
-const { Content, headings } = await post.render();
+const { Content, headings } = await render(post);
 
 function estimateReadingTime(content: string): number {
   const words = content.trim().split(/\s+/).length;

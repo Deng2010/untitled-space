@@ -1,0 +1,130 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="404 :: signal lost">
+  <section class="error">
+    <pre class="error__ascii" aria-hidden="true">{`  ____  _____ ____   ___   ____   ___  
+ |  _ \\| ____|  _ \\ / _ \\ / ___| / _ \\ 
+ | | | |  _| | |_) | | | | \\___ \\| | | |
+ | |_| | |___|  _ <| |_| |  ___) | |_| |
+ |____/|_____|_| \\_\\\\___/  |____/ \\___/ `}
+    </pre>
+
+    <pre class="error__log">{`> connecting to node ............ [ OK ]
+> requesting resource .......... [ FAIL ]
+> status: 404 NOT FOUND
+> reason: signal lost in the void
+> trace: segment.unmapped @ 0x0404
+> 
+> the page you requested has drifted
+> into an unmapped sector of the grid.
+> 
+> _`}
+    <span class="error__cursor">&nbsp;</span></pre>
+
+    <div class="error__actions">
+      <p class="error__hint">~ available commands:</p>
+      <ul class="error__cmd-list">
+        <li><a href="/" class="error__cmd">cd /</a> <span class="error__cmd-desc">— return to index</span></li>
+        <li><a href="/blog" class="error__cmd">cd /blog</a> <span class="error__cmd-desc">— browse the archive</span></li>
+        <li><a href="/notes" class="error__cmd">cd /notes</a> <span class="error__cmd-desc">— read the microblog</span></li>
+        <li><a href="/about" class="error__cmd">cd /about</a> <span class="error__cmd-desc">— system info</span></li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .error {
+    text-align: center;
+  }
+
+  .error__ascii {
+    font-size: var(--font-size-sm);
+    color: var(--color-cyan);
+    line-height: 1.2;
+    display: inline-block;
+    text-align: left;
+    overflow-x: auto;
+    max-width: 100%;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0 0 var(--space-lg);
+    text-shadow: 0 0 4px rgba(0, 255, 204, 0.4);
+  }
+
+  .error__log {
+    display: inline-block;
+    text-align: left;
+    color: var(--color-text);
+    border: var(--border-width) dotted var(--color-border);
+    padding: var(--space-md) var(--space-lg);
+    margin: 0 auto var(--space-xl);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    max-width: 100%;
+    overflow-x: auto;
+    position: relative;
+  }
+
+  .error__cursor {
+    display: inline-block;
+    width: 0.6em;
+    background: var(--color-cyan);
+    color: var(--color-cyan);
+    vertical-align: text-bottom;
+    animation: blink 1s steps(2, start) infinite;
+  }
+
+  @keyframes blink {
+    to {
+      visibility: hidden;
+    }
+  }
+
+  .error__actions {
+    text-align: left;
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  .error__hint {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .error__cmd-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+  }
+
+  .error__cmd-list li {
+    padding: var(--space-xs) 0;
+    border-bottom: 1px dotted var(--color-border-dashed);
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .error__cmd {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .error__cmd-desc {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .error__cursor {
+      animation: none;
+    }
+  }
+</style>
