@@ -1,0 +1,88 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import type { CollectionEntry } from "astro:content";
+
+export interface Props {
+  post: CollectionEntry<"blog" | "notes">;
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await post.render();
+
+function estimateReadingTime(content: string): number {
+  const words = content.trim().split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / 200));
+}
+---
+
+<BaseLayout title={post.data.title} description={"description" in post.data ? post.data.description : undefined}>
+  <article class="post">
+    <header class="post__header">
+      <h1 class="post__title">{post.data.title}</h1>
+      <div class="post__meta">
+        <time datetime={post.data.date.toISOString()}>
+          {post.data.date.toLocaleDateString("zh-CN")}
+        </time>
+        <span class="post__reading-time">
+          ~ {estimateReadingTime(post.body)} min read
+        </span>
+        {"tags" in post.data && post.data.tags && (
+          <span class="post__tags">
+            {post.data.tags.map((tag: string) => `#${tag}`).join(" ")}
+          </span>
+        )}
+      </div>
+    </header>
+
+    <div class="post__content">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .post {
+    max-width: var(--max-width);
+  }
+
+  .post__header {
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-md);
+    border-bottom: var(--border-width) dotted var(--color-border-dashed);
+  }
+
+  .post__title {
+    margin-top: 0;
+    margin-bottom: var(--space-sm);
+  }
+
+  .post__meta {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .post__reading-time {
+    color: var(--color-cyan);
+  }
+
+  .post__tags {
+    color: var(--color-teal);
+  }
+
+  .post__content {
+    line-height: 1.8;
+  }
+
+  .post__content h2 {
+    margin-top: var(--space-2xl);
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px dotted var(--color-border-dashed);
+  }
+
+  .post__content h3 {
+    margin-top: var(--space-xl);
+  }
+</style>

@@ -1,0 +1,46 @@
+{
+  "name": "untitled-space",
+  "description": "Y2K avant-garde sci-fi personal blog built with Astro",
+  "agents": {
+    "default": {
+      "description": "Default agent for untitled-space development",
+      "instructions": "Follow AGENTS.md strictly. All CSS must be hand-written. No Tailwind. Design aesthetic: Y2K retro sci-fi, dotted borders, blue-green palette, monospace, CRT scanlines, ASCII-art decorations.",
+      "skills": ["retro-theming", "content-creation", "build-deploy"]
+    }
+  },
+  "skills": {
+    "retro-theming": {
+      "description": "Creates CSS components matching the Y2K retro aesthetic",
+      "instructions": [
+        "Use CSS Variables from src/styles/tokens.css",
+        "Use dotted/dashed borders for containers",
+        "Use monospace font stack: 'JetBrains Mono', 'IBM Plex Mono', monospace",
+        "Apply scanline overlay on images if applicable",
+        "Use flat colors from the blue-green palette",
+        "Zero border-radius (or max 4px)",
+        "ASCII-art decorations for dividers and section breaks"
+      ]
+    },
+    "content-creation": {
+      "description": "Creates blog posts and notes content",
+      "instructions": [
+        "Place blog posts in src/content/blog/",
+        "Place short notes in src/content/notes/",
+        "Use frontmatter: title, date, tags, description",
+        "Use MDX for rich content",
+        "Frontmatter dates in YYYY-MM-DD format",
+        "Tags are lowercase kebab-case"
+      ]
+    },
+    "build-deploy": {
+      "description": "Handles build and deployment tasks",
+      "instructions": [
+        "Development: npm run dev",
+        "Build: npm run build",
+        "Preview: npm run preview",
+        "Deployment: push to main triggers GitHub Actions",
+        "Verify build succeeds before committing"
+      ]
+    }
+  }
+}

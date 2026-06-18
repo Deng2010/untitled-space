@@ -1,0 +1,92 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  return [{ params: { page: undefined } }];
+}
+
+const allPosts = (await getCollection("blog"))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<BaseLayout title="blog">
+  <h1>* blog / archives</h1>
+  <p class="archive-count">~ {allPosts.length} posts</p>
+
+  {allPosts.length > 0 ? (
+    <ul class="archive">
+      {allPosts.map((post) => (
+        <li class="archive__item">
+          <a href={`/blog/${post.id}`} class="archive__link">
+            {post.data.title}
+          </a>
+          <div class="archive__meta">
+            <time datetime={post.data.date.toISOString()}>
+              {post.data.date.toLocaleDateString("zh-CN")}
+            </time>
+            {post.data.tags && (
+              <span class="archive__tags">
+                {post.data.tags.map((tag) => `#${tag}`).join(" ")}
+              </span>
+            )}
+          </div>
+          {post.data.description && (
+            <p class="archive__desc">{post.data.description}</p>
+          )}
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p class="empty">~ no posts yet. the void is silent.</p>
+  )}
+</BaseLayout>
+
+<style>
+  .archive-count {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-lg);
+  }
+
+  .archive {
+    list-style: none;
+    padding: 0;
+  }
+
+  .archive__item {
+    padding: var(--space-md) 0;
+    border-bottom: 1px dotted var(--color-border-dashed);
+  }
+
+  .archive__link {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+  }
+
+  .archive__meta {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--space-xs);
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .archive__tags {
+    color: var(--color-teal);
+  }
+
+  .archive__desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--space-xs);
+    margin-bottom: 0;
+  }
+
+  .empty {
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+</style>

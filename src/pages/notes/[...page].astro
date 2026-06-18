@@ -1,0 +1,81 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  return [{ params: { page: undefined } }];
+}
+
+const allNotes = (await getCollection("notes"))
+  .filter((n) => !n.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<BaseLayout title="notes">
+  <h1>* notes / microblog</h1>
+  <p class="archive-count">~ {allNotes.length} notes</p>
+
+  {allNotes.length > 0 ? (
+    <ul class="archive">
+      {allNotes.map((note) => (
+        <li class="archive__item">
+          <a href={`/notes/${note.id}`} class="archive__link">
+            {note.data.title}
+          </a>
+          <div class="archive__meta">
+            <time datetime={note.data.date.toISOString()}>
+              {note.data.date.toLocaleDateString("zh-CN")}
+            </time>
+            {note.data.tags && (
+              <span class="archive__tags">
+                {note.data.tags.map((tag) => `#${tag}`).join(" ")}
+              </span>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p class="empty">~ no notes yet.</p>
+  )}
+</BaseLayout>
+
+<style>
+  .archive-count {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-lg);
+  }
+
+  .archive {
+    list-style: none;
+    padding: 0;
+  }
+
+  .archive__item {
+    padding: var(--space-sm) 0;
+    border-bottom: 1px dotted var(--color-border-dashed);
+  }
+
+  .archive__link {
+    font-weight: 700;
+  }
+
+  .archive__meta {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--space-xs);
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .archive__tags {
+    color: var(--color-teal);
+  }
+
+  .empty {
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+</style>
