@@ -13,35 +13,37 @@ const allPosts = (await getCollection("blog"))
 ---
 
 <BaseLayout title="blog">
-  <h1>* blog / archives</h1>
+  <h1>* BLOG / ARCHIVES</h1>
   <p class="archive-count">~ {allPosts.length} posts</p>
 
-  {allPosts.length > 0 ? (
-    <ul class="archive">
-      {allPosts.map((post) => (
-        <li class="archive__item">
-          <a href={withBase(`/blog/${post.id}`)} class="archive__link">
-            {post.data.title}
-          </a>
-          <div class="archive__meta">
-            <time datetime={post.data.date.toISOString()}>
-              {post.data.date.toLocaleDateString("zh-CN")}
-            </time>
-            {post.data.tags && (
-              <span class="archive__tags">
-                {post.data.tags.map((tag) => `#${tag}`).join(" ")}
-              </span>
+  {
+    allPosts.length > 0 ? (
+      <ul class="archive">
+        {allPosts.map((post) => (
+          <li class="archive__item">
+            <a href={withBase(`/blog/${post.id}`)} class="archive__link">
+              {post.data.title}
+            </a>
+            <div class="archive__meta">
+              <time datetime={post.data.date.toISOString()}>
+                {post.data.date.toLocaleDateString("zh-CN")}
+              </time>
+              {post.data.tags && (
+                <span class="archive__tags">
+                  {post.data.tags.map((tag) => `#${tag}`).join(" ")}
+                </span>
+              )}
+            </div>
+            {post.data.description && (
+              <p class="archive__desc">{post.data.description}</p>
             )}
-          </div>
-          {post.data.description && (
-            <p class="archive__desc">{post.data.description}</p>
-          )}
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <p class="empty">~ no posts yet. the void is silent.</p>
-  )}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="empty">~ no posts yet. the void is silent.</p>
+    )
+  }
 </BaseLayout>
 
 <style>

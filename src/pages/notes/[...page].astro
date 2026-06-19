@@ -13,32 +13,34 @@ const allNotes = (await getCollection("notes"))
 ---
 
 <BaseLayout title="notes">
-  <h1>* notes / microblog</h1>
+  <h1>* NOTES / MICROBLOG</h1>
   <p class="archive-count">~ {allNotes.length} notes</p>
 
-  {allNotes.length > 0 ? (
-    <ul class="archive">
-      {allNotes.map((note) => (
-        <li class="archive__item">
-          <a href={withBase(`/notes/${note.id}`)} class="archive__link">
-            {note.data.title}
-          </a>
-          <div class="archive__meta">
-            <time datetime={note.data.date.toISOString()}>
-              {note.data.date.toLocaleDateString("zh-CN")}
-            </time>
-            {note.data.tags && (
-              <span class="archive__tags">
-                {note.data.tags.map((tag) => `#${tag}`).join(" ")}
-              </span>
-            )}
-          </div>
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <p class="empty">~ no notes yet.</p>
-  )}
+  {
+    allNotes.length > 0 ? (
+      <ul class="archive">
+        {allNotes.map((note) => (
+          <li class="archive__item">
+            <a href={withBase(`/notes/${note.id}`)} class="archive__link">
+              {note.data.title}
+            </a>
+            <div class="archive__meta">
+              <time datetime={note.data.date.toISOString()}>
+                {note.data.date.toLocaleDateString("zh-CN")}
+              </time>
+              {note.data.tags && (
+                <span class="archive__tags">
+                  {note.data.tags.map((tag) => `#${tag}`).join(" ")}
+                </span>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="empty">~ no notes yet.</p>
+    )
+  }
 </BaseLayout>
 
 <style>

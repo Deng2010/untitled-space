@@ -58,6 +58,130 @@ const { title, description } = Astro.props;
         </pre>
       </footer>
     </div>
+
+    <script>
+      // Terminal typewriter effect — reveals sidebar logo columns first,
+      // then main content, character by character. Sidebar finishes without
+      // cursor; final cursor appears on the last sidebar char only after
+      // main content completes, as a rotated (horizontal) block.
+      (function () {
+        const main = document.querySelector(".main");
+        if (!main) return;
+        if (main.querySelector(".error")) return;           // 404 page
+        if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+        const SKIP = new Set(["SCRIPT", "STYLE", "PRE", "CODE", "KBD", "SVG"]);
+        const sidebarChars = [];
+        const mainChars = [];
+
+        // Walk text nodes, wrap each non-whitespace character in a hidden
+        // span, push to the given chars array
+        function walk(node, chars) {
+          let child = node.firstChild;
+          while (child) {
+            const next = child.nextSibling;
+            if (child.nodeType === 3) {
+              const text = child.textContent;
+              if (text && text.trim()) {
+                const frag = document.createDocumentFragment();
+                for (let i = 0; i < text.length; i++) {
+                  const c = text[i];
+                  if (c === " " || c === "\n" || c === "\t" || c === "\r") {
+                    frag.appendChild(document.createTextNode(c));
+                  } else {
+                    const span = document.createElement("span");
+                    span.className = "tw-char";
+                    span.textContent = c;
+                    frag.appendChild(span);
+                    chars.push(span);
+                  }
+                }
+                child.parentNode.replaceChild(frag, child);
+              }
+            } else if (child.nodeType === 1 && !SKIP.has(child.tagName)) {
+              walk(child, chars);
+            }
+            child = next;
+          }
+        }
+
+        // Walk both sidebar logo columns — UNTITLED first, then SPACE
+        const sidebarCols = document.querySelectorAll(".sidebar__logo-col");
+        for (let i = sidebarCols.length - 1; i >= 0; i--) {
+          walk(sidebarCols[i], sidebarChars);
+        }
+
+        // Then walk main content
+        walk(main, mainChars);
+
+        const totalChars = sidebarChars.length + mainChars.length;
+        if (totalChars === 0) return;
+
+        // Adaptive speed: aim for ~2.5s total, clamp between 8–25ms per char
+        const speed = Math.max(8, Math.min(25, 2500 / totalChars));
+
+        let phase = 0;   // 0 = sidebar typing, 1 = main typing, 2 = done
+        let idx = 0;
+
+        function nextTick() {
+          // ---- Phase 0: sidebar types out ----
+          if (phase === 0) {
+            if (idx >= sidebarChars.length) {
+              // Sidebar done — remove any cursor, then start main
+              if (sidebarChars.length > 0) {
+                sidebarChars[sidebarChars.length - 1].classList.remove("tw-now");
+              }
+              phase = 1;
+              idx = 0;
+              setTimeout(nextTick, 300);
+              return;
+            }
+            if (idx > 0) sidebarChars[idx - 1].classList.remove("tw-now");
+            sidebarChars[idx].classList.add("tw-now");
+            sidebarChars[idx].style.opacity = "1";
+            idx++;
+            setTimeout(nextTick, speed);
+            return;
+          }
+
+          // ---- Phase 1: main content types out ----
+          if (phase === 1) {
+            if (idx >= mainChars.length) {
+              finish();
+              return;
+            }
+            if (idx > 0) mainChars[idx - 1].classList.remove("tw-now");
+            mainChars[idx].classList.add("tw-now");
+            mainChars[idx].style.opacity = "1";
+            idx++;
+            setTimeout(nextTick, speed);
+            return;
+          }
+        }
+
+        function finish() {
+          // Unwrap all main content spans back to text nodes
+          for (const span of mainChars) {
+            const text = document.createTextNode(span.textContent);
+            span.parentNode.replaceChild(text, span);
+          }
+          // Unwrap all sidebar spans except the very last one ("E" of SPACE)
+          for (let i = 0; i < sidebarChars.length; i++) {
+            const span = sidebarChars[i];
+            if (i === sidebarChars.length - 1) {
+              // Keep as span with cursor + rotated orientation
+              span.classList.add("tw-now", "tw-done");
+            } else {
+              const text = document.createTextNode(span.textContent);
+              span.parentNode.replaceChild(text, span);
+            }
+          }
+        }
+
+        // Start after brief delay
+        setTimeout(nextTick, 200);
+      })();
+    </script>
   </body>
 </html>
 
@@ -133,7 +257,8 @@ const { title, description } = Astro.props;
 
   /* ---- main --------------------------------------------------------- */
   .main {
-    min-width: 0; /* prevent grid blowout from long code/pre blocks */
+    min-width: 0;
+    position: relative;
   }
 
   /* ---- footer ------------------------------------------------------- */
@@ -196,16 +321,44 @@ const { title, description } = Astro.props;
     line-height: 1;
     color: rgba(0, 255, 204, 0.32);
     text-shadow:
-      3vw 5vh "·",  12vw 8vh "·",  21vw 3vh "·",  28vw 15vh "·",
-      35vw 6vh "·",  42vw 18vh "·", 50vw 9vh "·",  58vw 2vh "·",
-      65vw 14vh "·", 73vw 7vh "·",  80vw 19vh "·", 88vw 11vh "·",
-      95vw 4vh "·",  5vw 22vh "·",  15vw 28vh "·", 25vw 25vh "·",
-      38vw 32vh "·", 48vw 40vh "·", 55vw 35vh "·", 66vw 44vh "·",
-      78vw 38vh "·", 85vw 50vh "·", 92vw 55vh "·", 10vw 60vh "·",
-      20vw 68vh "·", 33vw 72vh "·", 44vw 65vh "·", 52vw 78vh "·",
-      62vw 70vh "·", 75vw 82vh "·", 82vw 75vh "·", 90vw 88vh "·",
-      96vw 80vh "·", 7vw 90vh "·",  18vw 95vh "·", 40vw 90vh "·",
-      57vw 94vh "·", 70vw 92vh "·";
+      3vw 5vh "·",
+      12vw 8vh "·",
+      21vw 3vh "·",
+      28vw 15vh "·",
+      35vw 6vh "·",
+      42vw 18vh "·",
+      50vw 9vh "·",
+      58vw 2vh "·",
+      65vw 14vh "·",
+      73vw 7vh "·",
+      80vw 19vh "·",
+      88vw 11vh "·",
+      95vw 4vh "·",
+      5vw 22vh "·",
+      15vw 28vh "·",
+      25vw 25vh "·",
+      38vw 32vh "·",
+      48vw 40vh "·",
+      55vw 35vh "·",
+      66vw 44vh "·",
+      78vw 38vh "·",
+      85vw 50vh "·",
+      92vw 55vh "·",
+      10vw 60vh "·",
+      20vw 68vh "·",
+      33vw 72vh "·",
+      44vw 65vh "·",
+      52vw 78vh "·",
+      62vw 70vh "·",
+      75vw 82vh "·",
+      82vw 75vh "·",
+      90vw 88vh "·",
+      96vw 80vh "·",
+      7vw 90vh "·",
+      18vw 95vh "·",
+      40vw 90vh "·",
+      57vw 94vh "·",
+      70vw 92vh "·";
   }
 
   .bg-star--ast {
@@ -214,10 +367,22 @@ const { title, description } = Astro.props;
     line-height: 1;
     color: rgba(0, 204, 255, 0.28);
     text-shadow:
-      7vw 12vh "*",  22vw 20vh "*",  40vw 8vh "*",   55vw 22vh "*",
-      68vw 12vh "*", 82vw 25vh "*",  92vw 10vh "*",  14vw 45vh "*",
-      30vw 50vh "*", 48vw 58vh "*",  64vw 48vh "*",  77vw 62vh "*",
-      88vw 55vh "*", 25vw 80vh "*",  42vw 85vh "*",  60vw 78vh "*";
+      7vw 12vh "*",
+      22vw 20vh "*",
+      40vw 8vh "*",
+      55vw 22vh "*",
+      68vw 12vh "*",
+      82vw 25vh "*",
+      92vw 10vh "*",
+      14vw 45vh "*",
+      30vw 50vh "*",
+      48vw 58vh "*",
+      64vw 48vh "*",
+      77vw 62vh "*",
+      88vw 55vh "*",
+      25vw 80vh "*",
+      42vw 85vh "*",
+      60vw 78vh "*";
   }
 
   .bg-star--bit {
@@ -226,18 +391,35 @@ const { title, description } = Astro.props;
     line-height: 1;
     color: rgba(0, 255, 204, 0.18);
     text-shadow:
-      16vw 18vh "0",  34vw 30vh "1",  52vw 16vh "0",  70vw 28vh "1",
-      86vw 35vh "0",  8vw 52vh "1",   28vw 58vh "0",  50vw 65vh "1",
-      72vw 55vh "0",  90vw 68vh "1",  20vw 85vh "0",  38vw 92vh "1";
+      16vw 18vh "0",
+      34vw 30vh "1",
+      52vw 16vh "0",
+      70vw 28vh "1",
+      86vw 35vh "0",
+      8vw 52vh "1",
+      28vw 58vh "0",
+      50vw 65vh "1",
+      72vw 55vh "0",
+      90vw 68vh "1",
+      20vw 85vh "0",
+      38vw 92vh "1";
   }
 
   @media (prefers-color-scheme: dark) {
-    .bg-star--dot  { color: rgba(0, 255, 204, 0.22); }
-    .bg-star--ast  { color: rgba(0, 204, 255, 0.18); }
-    .bg-star--bit  { color: rgba(0, 255, 204, 0.12); }
+    .bg-star--dot {
+      color: rgba(0, 255, 204, 0.22);
+    }
+    .bg-star--ast {
+      color: rgba(0, 204, 255, 0.18);
+    }
+    .bg-star--bit {
+      color: rgba(0, 255, 204, 0.12);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .bg-star { display: none; }
+    .bg-star {
+      display: none;
+    }
   }
 </style>

@@ -189,3 +189,34 @@ button:hover, .btn:hover {
   background: var(--color-cyan);
   color: #000;
 }
+
+/* Terminal typewriter effect — characters start invisible,
+   JS reveals them one by one. Cursor is a pseudo-element on
+   the currently-typing character. Global (not scoped) because
+   the spans are created dynamically by JS. */
+.tw-char {
+  opacity: 0;
+  transition: opacity 0.04s;
+}
+
+.tw-char.tw-now::after {
+  content: "";
+  display: inline-block;
+  width: 0.55em;
+  height: 1.1em;
+  background: var(--color-cyan);
+  vertical-align: text-bottom;
+  margin-left: 1px;
+  animation: tw-blink 0.7s steps(2, start) infinite;
+}
+
+@keyframes tw-blink {
+  to { opacity: 0; }
+}
+
+/* At end of full animation, rotate the cursor 90° so it spans the
+   character width horizontally — matches vertical-rl sidebar text. */
+.tw-char.tw-done::after {
+  transform: rotate(90deg);
+  transform-origin: center;
+}
