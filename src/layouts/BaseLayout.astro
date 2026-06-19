@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { withBase } from "../utils/paths";
 
 export interface Props {
   title: string;
@@ -16,26 +17,41 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description || "untitled-space"} />
     <title>{title} :: untitled-space</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
   </head>
   <body>
+    <span class="bg-star bg-star--dot" aria-hidden="true"></span>
+    <span class="bg-star bg-star--ast" aria-hidden="true"></span>
+    <span class="bg-star bg-star--bit" aria-hidden="true"></span>
+
     <div class="layout">
-      <header class="header">
-        <a href="/" class="header__logo">untitled-space</a>
-        <nav class="header__nav">
-          <a href="/">~ index</a>
-          <a href="/blog">/ blog</a>
-          <a href="/notes">/ notes</a>
-          <a href="/about">/ about</a>
+      <aside class="sidebar">
+        <a href={withBase("/")} class="sidebar__logo">
+          <span class="sidebar__logo-col">SPACE</span>
+          <span class="sidebar__logo-col">UNTITLED</span>
+        </a>
+        <nav class="sidebar__nav" aria-label="Main navigation">
+          <a href={withBase("/")}>~ INDEX</a>
+          <a href={withBase("/blog")}>/ BLOG</a>
+          <a href={withBase("/notes")}>/ NOTES</a>
+          <a href={withBase("/about")}>/ ABOUT</a>
         </nav>
-      </header>
+
+        <pre
+          class="sidebar__deco">{`+-----------------+
+| > STATUS : OK   |
+| > NODE   : 0x1A |
+| > UPLINK : ON   |
++-----------------+`}</pre>
+      </aside>
 
       <main class="main">
         <slot />
       </main>
 
       <footer class="footer">
-        <pre class="footer__ascii">
+        <pre
+          class="footer__ascii">
 {`<*> handmade with cat /\\_/\\
     ( o.o )
      > ^ <`}
@@ -47,63 +63,181 @@ const { title, description } = Astro.props;
 
 <style>
   .layout {
-    max-width: var(--max-width);
+    max-width: 1000px;
     margin: 0 auto;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: 1fr auto;
+    gap: var(--space-xl);
   }
 
-  .header {
+  /* ---- sidebar ------------------------------------------------------ */
+  .sidebar {
+    grid-row: 1 / 3;
+    border: var(--border-width) dashed var(--color-border-dashed);
+    padding: var(--space-lg);
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding-bottom: var(--space-md);
-    border-bottom: var(--border-width) dashed var(--color-border-dashed);
-    margin-bottom: var(--space-xl);
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-lg);
+  }
+
+  .sidebar__logo {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    font-family: var(--font-pixel);
+    color: var(--color-cyan);
+    text-decoration: none;
+    line-height: 1.1;
+    image-rendering: pixelated;
+    display: flex;
+    flex-direction: row;
     gap: var(--space-sm);
   }
 
-  .header__logo {
-    font-size: var(--font-size-lg);
-    font-weight: 700;
-    color: var(--color-cyan);
-    text-decoration: none;
+  .sidebar__logo-col {
+    writing-mode: vertical-rl;
   }
 
-  .header__logo:visited {
+  .sidebar__logo:visited {
     color: var(--color-cyan);
   }
 
-  .header__logo:hover {
+  .sidebar__logo:hover {
     color: var(--color-blue);
   }
 
-  .header__nav {
+  .sidebar__nav {
     display: flex;
-    gap: var(--space-md);
+    flex-direction: column;
+    gap: var(--space-sm);
   }
 
-  .header__nav a {
+  .sidebar__deco {
+    font-family: var(--font-pixel);
+    font-size: calc(var(--font-size-sm) - 1px);
+    color: var(--color-teal);
+    line-height: 1.2;
+    margin: 0;
+    margin-top: auto;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+
+  .sidebar__nav a {
     font-size: var(--font-size-sm);
     text-transform: lowercase;
   }
 
+  /* ---- main --------------------------------------------------------- */
   .main {
-    flex: 1;
+    min-width: 0; /* prevent grid blowout from long code/pre blocks */
   }
 
+  /* ---- footer ------------------------------------------------------- */
   .footer {
-    margin-top: var(--space-2xl);
     padding-top: var(--space-md);
     border-top: var(--border-width) dashed var(--color-border-dashed);
   }
 
   .footer__ascii {
+    font-family: var(--font-pixel);
     font-size: var(--font-size-sm);
     color: var(--color-text-muted);
-    text-align: center;
     line-height: 1.3;
+  }
+
+  /* ---- mobile: stack vertically ------------------------------------ */
+  @media (max-width: 700px) {
+    .layout {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr auto;
+      max-width: 100%;
+      gap: var(--space-lg);
+    }
+
+    .sidebar {
+      grid-row: 1;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: var(--space-md);
+      padding: var(--space-md);
+    }
+
+    .sidebar__logo {
+      font-size: var(--font-size-2xl);
+    }
+    .sidebar__logo-col {
+      writing-mode: horizontal-tb;
+    }
+
+    .sidebar__nav {
+      flex-direction: row;
+      gap: var(--space-sm);
+      margin-top: 0;
+    }
+  }
+
+  /* ---- background starfield (character-based) ---------------------- */
+  .bg-star {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .bg-star--dot {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    line-height: 1;
+    color: rgba(0, 255, 204, 0.32);
+    text-shadow:
+      3vw 5vh "·",  12vw 8vh "·",  21vw 3vh "·",  28vw 15vh "·",
+      35vw 6vh "·",  42vw 18vh "·", 50vw 9vh "·",  58vw 2vh "·",
+      65vw 14vh "·", 73vw 7vh "·",  80vw 19vh "·", 88vw 11vh "·",
+      95vw 4vh "·",  5vw 22vh "·",  15vw 28vh "·", 25vw 25vh "·",
+      38vw 32vh "·", 48vw 40vh "·", 55vw 35vh "·", 66vw 44vh "·",
+      78vw 38vh "·", 85vw 50vh "·", 92vw 55vh "·", 10vw 60vh "·",
+      20vw 68vh "·", 33vw 72vh "·", 44vw 65vh "·", 52vw 78vh "·",
+      62vw 70vh "·", 75vw 82vh "·", 82vw 75vh "·", 90vw 88vh "·",
+      96vw 80vh "·", 7vw 90vh "·",  18vw 95vh "·", 40vw 90vh "·",
+      57vw 94vh "·", 70vw 92vh "·";
+  }
+
+  .bg-star--ast {
+    font-family: var(--font-mono);
+    font-size: 7px;
+    line-height: 1;
+    color: rgba(0, 204, 255, 0.28);
+    text-shadow:
+      7vw 12vh "*",  22vw 20vh "*",  40vw 8vh "*",   55vw 22vh "*",
+      68vw 12vh "*", 82vw 25vh "*",  92vw 10vh "*",  14vw 45vh "*",
+      30vw 50vh "*", 48vw 58vh "*",  64vw 48vh "*",  77vw 62vh "*",
+      88vw 55vh "*", 25vw 80vh "*",  42vw 85vh "*",  60vw 78vh "*";
+  }
+
+  .bg-star--bit {
+    font-family: var(--font-mono);
+    font-size: 7px;
+    line-height: 1;
+    color: rgba(0, 255, 204, 0.18);
+    text-shadow:
+      16vw 18vh "0",  34vw 30vh "1",  52vw 16vh "0",  70vw 28vh "1",
+      86vw 35vh "0",  8vw 52vh "1",   28vw 58vh "0",  50vw 65vh "1",
+      72vw 55vh "0",  90vw 68vh "1",  20vw 85vh "0",  38vw 92vh "1";
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .bg-star--dot  { color: rgba(0, 255, 204, 0.22); }
+    .bg-star--ast  { color: rgba(0, 204, 255, 0.18); }
+    .bg-star--bit  { color: rgba(0, 255, 204, 0.12); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bg-star { display: none; }
   }
 </style>

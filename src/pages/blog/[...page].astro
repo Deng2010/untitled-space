@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
+import { withBase } from "../../utils/paths";
 
 export async function getStaticPaths() {
   return [{ params: { page: undefined } }];
@@ -19,7 +20,7 @@ const allPosts = (await getCollection("blog"))
     <ul class="archive">
       {allPosts.map((post) => (
         <li class="archive__item">
-          <a href={`/blog/${post.id}`} class="archive__link">
+          <a href={withBase(`/blog/${post.id}`)} class="archive__link">
             {post.data.title}
           </a>
           <div class="archive__meta">

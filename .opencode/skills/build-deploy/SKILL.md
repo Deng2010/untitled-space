@@ -9,15 +9,15 @@ Use this skill when running build commands or managing deployment.
 
 ## Commands
 
-- `npm run dev` — Start dev server with hot reload
-- `npm run build` — Static build to `dist/`
-- `npm run preview` — Preview the production build locally
+- `bun dev` — Start dev server with hot reload
+- `bun build` — Static build to `dist/`
+- `bun preview` — Preview the production build locally
 
 ## Deployment
 
 - Push to `main` branch triggers GitHub Actions
 - Workflow file: `.github/workflows/deploy.yml`
-- Builds with `npm ci && npm run build`
+- Builds with `bun install --frozen-lockfile && bun run build`
 - Deploys to GitHub Pages via `actions/deploy-pages`
 
 ## Verification

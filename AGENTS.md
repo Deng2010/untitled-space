@@ -70,9 +70,9 @@ src/content/
 ## Build & Deploy
 
 ```bash
-npm run dev      # dev server
-npm run build    # static build to dist/
-npm run preview  # preview build
+bun dev      # dev server
+bun build    # static build to dist/
+bun preview  # preview build
 ```
 
 Deploy: push to `main` → GitHub Actions builds and deploys to GitHub Pages.

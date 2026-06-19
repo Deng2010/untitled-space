@@ -11,7 +11,7 @@
       "description": "Builds and deploys the Astro site",
       "mode": "subagent",
       "permission": { "bash": "allow" },
-      "prompt": "You handle build and deployment tasks. Run 'npm run build' to build. Push to main to trigger GitHub Actions deploy."
+      "prompt": "You handle build and deployment tasks. Run 'bun run build' to build. Push to main to trigger GitHub Actions deploy (uses bun)."
     }
   },
   "skills": {

@@ -1,5 +1,6 @@
 import rss from "@astrojs/rss";
 import { getCollection } from "astro:content";
+import { withBase } from "../utils/paths";
 
 export async function GET(context: { site: string }) {
   const posts = (await getCollection("blog"))
@@ -14,7 +15,7 @@ export async function GET(context: { site: string }) {
       title: post.data.title,
       pubDate: post.data.date,
       description: post.data.description,
-      link: `/blog/${post.id}/`,
+      link: withBase(`/blog/${post.id}/`),
     })),
     xmlns: {
       atom: "http://www.w3.org/2005/Atom",

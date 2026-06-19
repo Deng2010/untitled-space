@@ -32,6 +32,8 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
     <hr />
 
+    <pre class="divider">{`·  ·  ·  ·  ·  ·  · [ spec sheet ]  ·  ·  ·  ·  ·  ·  ·`}</pre>
+
     <h2>~ colophon</h2>
     <table>
       <tr><th>property</th><th>value</th></tr>
@@ -53,9 +55,23 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   }
 
   .ascii-block {
+    font-family: var(--font-pixel);
     font-size: var(--font-size-sm);
     color: var(--color-cyan);
     line-height: 1.4;
     margin: var(--space-lg) 0;
+  }
+
+  .divider {
+    font-family: var(--font-pixel);
+    font-size: var(--font-size-sm);
+    color: var(--color-teal);
+    text-align: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: var(--space-xl) 0;
+    line-height: 1.2;
+    overflow: hidden;
   }
 </style>

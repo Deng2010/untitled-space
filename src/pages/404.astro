@@ -1,10 +1,17 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { withBase } from "../utils/paths";
 ---
 
 <BaseLayout title="404 :: signal lost">
+  <div class="corrupt" aria-hidden="true">
+    <span class="corrupt__bar corrupt__bar--1"></span>
+    <span class="corrupt__bar corrupt__bar--2"></span>
+    <span class="corrupt__bar corrupt__bar--3"></span>
+  </div>
+
   <section class="error">
-    <pre class="error__ascii" aria-hidden="true">{`  ____  _____ ____   ___   ____   ___  
+    <pre class="error__ascii" data-glitch aria-hidden="true">{`  ____  _____ ____   ___   ____   ___  
  |  _ \\| ____|  _ \\ / _ \\ / ___| / _ \\ 
  | | | |  _| | |_) | | | | \\___ \\| | | |
  | |_| | |___|  _ <| |_| |  ___) | |_| |
@@ -16,6 +23,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 > status: 404 NOT FOUND
 > reason: signal lost in the void
 > trace: segment.unmapped @ 0x0404
+> data: 0xDEAD 0xBEEF 0x4044 ░▒▓█
 > 
 > the page you requested has drifted
 > into an unmapped sector of the grid.
@@ -26,23 +34,84 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <div class="error__actions">
       <p class="error__hint">~ available commands:</p>
       <ul class="error__cmd-list">
-        <li><a href="/" class="error__cmd">cd /</a> <span class="error__cmd-desc">— return to index</span></li>
-        <li><a href="/blog" class="error__cmd">cd /blog</a> <span class="error__cmd-desc">— browse the archive</span></li>
-        <li><a href="/notes" class="error__cmd">cd /notes</a> <span class="error__cmd-desc">— read the microblog</span></li>
-        <li><a href="/about" class="error__cmd">cd /about</a> <span class="error__cmd-desc">— system info</span></li>
+        <li><a href={withBase("/")} class="error__cmd">cd /</a> <span class="error__cmd-desc">— return to index</span></li>
+        <li><a href={withBase("/blog")} class="error__cmd">cd /blog</a> <span class="error__cmd-desc">— browse the archive</span></li>
+        <li><a href={withBase("/notes")} class="error__cmd">cd /notes</a> <span class="error__cmd-desc">— read the microblog</span></li>
+        <li><a href={withBase("/about")} class="error__cmd">cd /about</a> <span class="error__cmd-desc">— system info</span></li>
       </ul>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .error {
-    text-align: center;
+  /* Override page environment to a corrupted deep-red state.
+     Scoped to this page only via :global(body) — the rest of the
+     site keeps its blue-green palette. */
+  :global(body) {
+    background-color: #1a0303;
+    color: #f0d6d6;
+    position: relative;
+    overflow-x: hidden;
   }
 
+  /* CRT scanlines — heavier than the rest of the site to sell the
+     "signal degradation" feel. Sits above content, below text. */
+  :global(body)::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.25) 0px,
+      rgba(0, 0, 0, 0.25) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: multiply;
+  }
+
+  /* Red vignette — darkens the edges for a cramped, failing-tube look. */
+  :global(body)::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 40%,
+      rgba(40, 0, 0, 0.55) 100%
+    );
+  }
+
+  /* Header/footer/nav inherit the warm text but keep the cyan logo
+     (complementary to red, reads as a still-functioning subsystem). */
+  :global(.sidebar__logo),
+  :global(.sidebar__nav a) {
+    color: #ff5555;
+  }
+  :global(.sidebar),
+  :global(.footer) {
+    border-color: #660000;
+  }
+  :global(.footer__ascii) {
+    color: #8a4444;
+  }
+
+  .error {
+    text-align: center;
+    position: relative;
+    z-index: 3;
+  }
+
+  /* The big 404 — RGB split (chromatic aberration) + a slow, subtle
+     horizontal jitter. The split is what sells "broken signal". */
   .error__ascii {
+    font-family: var(--font-pixel);
     font-size: var(--font-size-sm);
-    color: var(--color-cyan);
+    color: #ffcccc;
     line-height: 1.2;
     display: inline-block;
     text-align: left;
@@ -52,14 +121,59 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     border: none;
     padding: 0;
     margin: 0 0 var(--space-lg);
-    text-shadow: 0 0 4px rgba(0, 255, 204, 0.4);
+    image-rendering: pixelated;
+    text-shadow:
+      2px 0 #ff0033,
+      -2px 0 #00ffee,
+      0 0 6px rgba(255, 0, 51, 0.35);
+    animation: glitch-jitter 3.2s steps(2, end) infinite;
+  }
+
+  /* Random horizontal "tear" bars — thin slices that drift sideways
+     briefly, like a VHS tracking error. Three of them, low opacity. */
+  .corrupt {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 4;
+    overflow: hidden;
+  }
+
+  .corrupt__bar {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 0, 51, 0.5);
+    mix-blend-mode: screen;
+    opacity: 0;
+  }
+
+  .corrupt__bar--1 {
+    top: 22%;
+    animation: tear 7s linear infinite;
+    animation-delay: 0.5s;
+  }
+  .corrupt__bar--2 {
+    top: 48%;
+    height: 1px;
+    background: rgba(0, 255, 238, 0.4);
+    animation: tear 5.5s linear infinite;
+    animation-delay: 2s;
+  }
+  .corrupt__bar--3 {
+    top: 71%;
+    height: 3px;
+    animation: tear 9s linear infinite;
+    animation-delay: 4s;
   }
 
   .error__log {
+    font-family: var(--font-pixel);
     display: inline-block;
     text-align: left;
-    color: var(--color-text);
-    border: var(--border-width) dotted var(--color-border);
+    color: #f0d6d6;
+    border: var(--border-width) dotted #aa2222;
     padding: var(--space-md) var(--space-lg);
     margin: 0 auto var(--space-xl);
     font-size: var(--font-size-sm);
@@ -67,21 +181,17 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     max-width: 100%;
     overflow-x: auto;
     position: relative;
+    background: rgba(20, 0, 0, 0.4);
+    text-shadow: 1px 0 rgba(255, 0, 51, 0.3);
   }
 
   .error__cursor {
     display: inline-block;
     width: 0.6em;
-    background: var(--color-cyan);
-    color: var(--color-cyan);
+    background: #ff3333;
+    color: #ff3333;
     vertical-align: text-bottom;
     animation: blink 1s steps(2, start) infinite;
-  }
-
-  @keyframes blink {
-    to {
-      visibility: hidden;
-    }
   }
 
   .error__actions {
@@ -91,7 +201,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   }
 
   .error__hint {
-    color: var(--color-text-muted);
+    color: #aa6666;
     font-size: var(--font-size-sm);
     margin-bottom: var(--space-sm);
   }
@@ -105,7 +215,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
   .error__cmd-list li {
     padding: var(--space-xs) 0;
-    border-bottom: 1px dotted var(--color-border-dashed);
+    border-bottom: 1px dotted #660000;
     display: flex;
     align-items: baseline;
     gap: var(--space-md);
@@ -115,16 +225,91 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   .error__cmd {
     font-weight: 700;
     white-space: nowrap;
+    color: #00ffee;
+    text-decoration: underline;
+  }
+
+  .error__cmd:visited {
+    color: #00ffee;
+  }
+
+  .error__cmd:hover {
+    color: #ffff00;
   }
 
   .error__cmd-desc {
-    color: var(--color-text-muted);
+    color: #aa6666;
     font-size: var(--font-size-sm);
   }
 
+  @keyframes blink {
+    to {
+      visibility: hidden;
+    }
+  }
+
+  /* Very gentle jitter — only a couple of pixels, never violent. */
+  @keyframes glitch-jitter {
+    0%, 92%, 100% {
+      transform: translate(0, 0);
+      text-shadow:
+        2px 0 #ff0033,
+        -2px 0 #00ffee,
+        0 0 6px rgba(255, 0, 51, 0.35);
+    }
+    93% {
+      transform: translate(-2px, 1px);
+      text-shadow:
+        3px 0 #ff0033,
+        -3px 0 #00ffee,
+        0 0 6px rgba(255, 0, 51, 0.35);
+    }
+    95% {
+      transform: translate(2px, -1px);
+      text-shadow:
+        -2px 0 #ff0033,
+        2px 0 #00ffee,
+        0 0 6px rgba(255, 0, 51, 0.35);
+    }
+    97% {
+      transform: translate(-1px, 0);
+      text-shadow:
+        2px 0 #ff0033,
+        -2px 0 #00ffee,
+        0 0 6px rgba(255, 0, 51, 0.35);
+    }
+  }
+
+  /* Tear bars flicker sideways briefly then go dormant. */
+  @keyframes tear {
+    0%, 88%, 100% {
+      opacity: 0;
+      transform: translateX(0);
+    }
+    89% {
+      opacity: 0.8;
+      transform: translateX(-8px);
+    }
+    92% {
+      opacity: 0.6;
+      transform: translateX(6px);
+    }
+    95% {
+      opacity: 0;
+      transform: translateX(0);
+    }
+  }
+
+  /* Respect reduced-motion: freeze everything, keep the static
+     RGB-split look (which is still readable, just tinted). */
   @media (prefers-reduced-motion: reduce) {
+    .error__ascii,
+    .corrupt__bar,
     .error__cursor {
       animation: none;
+    }
+    .corrupt__bar {
+      opacity: 0;
     }
   }
 </style>
