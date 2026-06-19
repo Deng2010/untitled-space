@@ -67,16 +67,16 @@ const { title, description } = Astro.props;
       (function () {
         const main = document.querySelector(".main");
         if (!main) return;
-        if (main.querySelector(".error")) return;           // 404 page
+        if (main.querySelector(".error")) return; // 404 page
         if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
         const SKIP = new Set(["SCRIPT", "STYLE", "PRE", "CODE", "KBD", "SVG"]);
-        const sidebarChars = [];
-        const mainChars = [];
+        const sidebarChars: string | any[] = [];
+        const mainChars: string | any[] = [];
 
         // Walk text nodes, wrap each non-whitespace character in a hidden
         // span, push to the given chars array
-        function walk(node, chars) {
+        function walk(node: Element, chars: any[]) {
           let child = node.firstChild;
           while (child) {
             const next = child.nextSibling;
@@ -120,7 +120,7 @@ const { title, description } = Astro.props;
         // Adaptive speed: aim for ~2.5s total, clamp between 8–25ms per char
         const speed = Math.max(8, Math.min(25, 2500 / totalChars));
 
-        let phase = 0;   // 0 = sidebar typing, 1 = main typing, 2 = done
+        let phase = 0; // 0 = sidebar typing, 1 = main typing, 2 = done
         let idx = 0;
 
         function nextTick() {
@@ -129,7 +129,9 @@ const { title, description } = Astro.props;
             if (idx >= sidebarChars.length) {
               // Sidebar done — remove any cursor, then start main
               if (sidebarChars.length > 0) {
-                sidebarChars[sidebarChars.length - 1].classList.remove("tw-now");
+                sidebarChars[sidebarChars.length - 1].classList.remove(
+                  "tw-now",
+                );
               }
               phase = 1;
               idx = 0;
